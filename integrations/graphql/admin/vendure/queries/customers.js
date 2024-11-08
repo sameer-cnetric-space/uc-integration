@@ -6,10 +6,10 @@ const GET_CUSTOMERS_QUERY = gql`
       totalItems
       items {
         id
-        title
         firstName
         lastName
         emailAddress
+        phoneNumber
       }
     }
   }

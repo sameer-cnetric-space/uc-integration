@@ -34,7 +34,7 @@ class CommerceController {
     try {
       const workspaceId = req.params.workspaceId;
       const customersList = await commerceService.getCustomersList(workspaceId);
-      res.status(200).json(customersList);
+      res.status(200).json({ customers: customersList });
     } catch (error) {
       console.error("Error in getCustomersList controller:", error);
       res.status(500).json({ error: "Failed to fetch customers list" });

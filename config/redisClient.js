@@ -5,7 +5,7 @@ const client = redis.createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379", // Adjust as needed
   socket: {
     reconnectStrategy: (retries) => {
-      if (retries >= 10) {
+      if (retries >= 5) {
         console.error("Max retries reached. Exiting...");
         return new Error("Max retries reached. Exiting...");
       }

@@ -10,10 +10,8 @@ async function getProducts(workspaceId) {
     // Try to retrieve products list from Redis cache
     const cachedData = await redisClient.get(productsCacheKey);
     if (cachedData) {
-      console.log("Cache hit for productsList:", productsCacheKey);
       return JSON.parse(cachedData); // Return cached data if available
     }
-    console.log("Cache miss for productsList:", productsCacheKey);
 
     const client = await getVendureClient(workspaceId);
 
@@ -41,7 +39,6 @@ async function getProducts(workspaceId) {
       }
     );
 
-    console.log("Cached productsList successfully:", productsCacheKey);
     return standardizedProducts;
   } catch (error) {
     console.error("Error in getProducts:", error);
@@ -89,7 +86,6 @@ async function getProductById(workspaceId, productId) {
       })),
     };
 
-    console.log("Fetched product from API:", standardizedProduct);
     return standardizedProduct;
   } catch (error) {
     console.error("Error in getProductById:", error);
