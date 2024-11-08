@@ -97,8 +97,6 @@ async function getProductById(workspaceId, productId) {
   }
 }
 
-getProducts(2);
-
 module.exports = {
   getProducts,
   getProductById,
