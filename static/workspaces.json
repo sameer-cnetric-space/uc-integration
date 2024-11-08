@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "userId": 101,
+    "commerce": "vendure",
+    "env": {
+      "baseUrl": "http://106.51.242.196:52343",
+      "adminToken": "480ae896829f9bc81f4d1949f942487a8c3e60357cb90818cba9c64275ac7960",
+      "username": "superadmin",
+      "password": "superadmin"
+    }
+  },
+  {
+    "id": 2,
+    "userId": 102,
+    "commerce": "shopify",
+    "env": {
+      "accessToken": "sampleAccessToken456",
+      "storeName": "example-shop"
+    }
+  }
+]
