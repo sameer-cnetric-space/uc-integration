@@ -1,12 +1,10 @@
-// integrations/graphql/admin/vendure/handlers/authHandler.js
-const createApolloClient = require("../../../../../api/apollo/apolloClient");
+const getVendureClient = require("../adminClient");
 const adminAuth = require("../queries/auth");
-const redisClient = require("../../../../../config/redisClient");
+const redisService = require("../../../../../services/redis");
 
 class AuthHandler {
   constructor(workspaceId) {
     this.workspaceId = workspaceId;
-    this.envKey = `workspace:${workspaceId}:env`;
   }
 
   // Perform login and retrieve token from response headers
@@ -38,7 +36,7 @@ class AuthHandler {
 
       // Update the `adminAuth` field with the new token and store it in Redis
       envData.adminAuth = token;
-      await redisClient.set(this.envKey, JSON.stringify(envData));
+      await redisService.setEnv(this.workspaceId, envData);
 
       return token;
     } catch (error) {
@@ -49,8 +47,7 @@ class AuthHandler {
 
   // Get workspace environment details from Redis
   async getWorkspaceEnv() {
-    const envDataString = await redisClient.get(this.envKey);
-    const envData = JSON.parse(envDataString);
+    const envData = await redisService.getEnv(this.workspaceId);
 
     // Ensure necessary fields are available
     if (
@@ -79,6 +76,36 @@ class AuthHandler {
 
     // Token is missing, perform login to retrieve a new one
     return await this.login();
+  }
+
+  // Make an authenticated request with automatic retry on `FORBIDDEN` error
+  async makeAuthenticatedRequest(query, variables = {}) {
+    let client = await getVendureClient(this.workspaceId);
+
+    try {
+      const response = await client.query({ query, variables });
+      return response.data;
+    } catch (error) {
+      // Check if the error is a `FORBIDDEN` error
+      if (
+        error.networkError?.result?.errors?.[0]?.extensions?.code ===
+        "FORBIDDEN"
+      ) {
+        console.log("Token expired, re-authenticating...");
+
+        // Re-authenticate and update the token in Redis
+        await this.login();
+
+        // Create a new client with the updated token
+        client = await getVendureClient(this.workspaceId);
+
+        // Retry the request with the new client
+        const retryResponse = await client.query({ query, variables });
+        return retryResponse.data;
+      } else {
+        throw error; // Propagate other errors
+      }
+    }
   }
 }
 

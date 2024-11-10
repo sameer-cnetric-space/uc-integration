@@ -1,15 +1,16 @@
+// services/customersService.js
 const getVendureClient = require("../adminClient");
 const adminCustomersQuery = require("../queries/customers");
-const redisClient = require("../../../../../config/redisClient");
+const redisService = require("../../../../../services/redis");
 
 async function getCustomers(workspaceId) {
   const customersCacheKey = `workspace:${workspaceId}:customersList`;
 
   try {
     // Try to retrieve customers list from Redis cache
-    const cachedData = await redisClient.get(customersCacheKey);
+    const cachedData = await redisService.getCache(customersCacheKey);
     if (cachedData) {
-      return JSON.parse(cachedData); // Return cached data if available
+      return cachedData; // Return cached data if available
     }
 
     // Create Vendure client and execute the query
@@ -28,13 +29,7 @@ async function getCustomers(workspaceId) {
     }));
 
     // Cache the standardized customers list in Redis for 60 seconds
-    await redisClient.set(
-      customersCacheKey,
-      JSON.stringify(standardizedCustomers),
-      {
-        EX: 300,
-      }
-    );
+    await redisService.setCache(customersCacheKey, standardizedCustomers, 300);
 
     return standardizedCustomers;
   } catch (error) {

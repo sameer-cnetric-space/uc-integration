@@ -1,4 +1,3 @@
-// integrations/graphql/admin/vendure/integrator.js
 const productHandler = require("./handlers/products");
 const customerHandler = require("./handlers/customers");
 const orderHandler = require("./handlers/orders");
